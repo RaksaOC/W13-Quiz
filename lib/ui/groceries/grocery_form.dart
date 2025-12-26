@@ -48,8 +48,10 @@ class _GroceryFormState extends State<GroceryForm> {
 
   void onReset() {
     // Reset all fields to the initial values
-
     _formKey.currentState!.reset();
+    _nameController.text = defautName;
+    _quantityController.text = defaultQuantity.toString();
+    _selectedCategory = defaultCategory;
   }
 
   void onAdd() {
