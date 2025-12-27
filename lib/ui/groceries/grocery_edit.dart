@@ -5,17 +5,22 @@ import '../../models/grocery.dart';
 
 Uuid uuid = const Uuid();
 
-class GroceryForm extends StatefulWidget {
-  
-  const GroceryForm({super.key});
+class GroceryEdit extends StatefulWidget {
+  final Grocery grocery;
+  final Function(Grocery) onGroceryUpdated;
+  const GroceryEdit({
+    super.key,
+    required this.grocery,
+    required this.onGroceryUpdated,
+  });
 
   @override
-  State<GroceryForm> createState() {
-    return _GroceryFormState();
+  State<GroceryEdit> createState() {
+    return _GroceryEditState();
   }
 }
 
-class _GroceryFormState extends State<GroceryForm> {
+class _GroceryEditState extends State<GroceryEdit> {
   // Form Key
   final _formKey = GlobalKey<FormState>();
 
@@ -34,8 +39,9 @@ class _GroceryFormState extends State<GroceryForm> {
     super.initState();
 
     // Initialize intputs with default settings
-    _nameController.text = defautName;
-    _quantityController.text = defaultQuantity.toString();
+    _nameController.text = widget.grocery.name;
+    _quantityController.text = widget.grocery.quantity.toString();
+    _selectedCategory = widget.grocery.category;
   }
 
   @override
@@ -55,17 +61,18 @@ class _GroceryFormState extends State<GroceryForm> {
     _selectedCategory = defaultCategory;
   }
 
-  void onAdd() {
+  void onEdit() {
     if (_formKey.currentState!.validate()) {
-      // Create and return the new grocery
-      Grocery newGrocery = Grocery(
-        id: uuid.v4(),
+      // Create updated grocery with form data
+      final updatedGrocery = Grocery(
+        id: widget.grocery.id, // Keep the same ID
         name: _nameController.text,
         quantity: int.parse(_quantityController.text),
         category: _selectedCategory,
       );
+      widget.onGroceryUpdated(updatedGrocery);
 
-      Navigator.pop<Grocery>(context, newGrocery);
+      Navigator.pop(context);
     }
   }
 
@@ -74,8 +81,8 @@ class _GroceryFormState extends State<GroceryForm> {
       return "Enter a name";
     }
 
-    if (value.length < 10 || value.length > 50) {
-      return "Enter a text btw 10 to 50 characters";
+    if ( value.length > 50) {
+      return "Enter a text no larger than 50 characters";
     }
 
     return null; //valid
@@ -84,7 +91,7 @@ class _GroceryFormState extends State<GroceryForm> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Add a new item')),
+      appBar: AppBar(title: const Text('Edit an item')),
       body: Padding(
         padding: const EdgeInsets.all(12),
         child: Form(
@@ -148,8 +155,8 @@ class _GroceryFormState extends State<GroceryForm> {
                 children: [
                   TextButton(onPressed: onReset, child: const Text('Reset')),
                   ElevatedButton(
-                    onPressed: onAdd,
-                    child: const Text('Add Item'),
+                    onPressed: onEdit,
+                    child: const Text('Edit Item'),
                   ),
                 ],
               ),
